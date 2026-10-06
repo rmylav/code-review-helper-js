@@ -1,4 +1,5 @@
 import path from "node:path";
+import { parseArgs } from "node:util";
 
 const pathAbs = import.meta.dirname; //current folder path
 
@@ -8,7 +9,7 @@ try {
   process.loadEnvFile(envPath); //read Key value into process.env
 } catch (error) {
   if (error.code === "ENOENT") {
-    console.error("No env found at ", envPath);
+    console.error(`No .env found at ${envPath}`);
   } else {
     console.error(error.message);
   }
