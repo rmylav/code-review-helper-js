@@ -64,6 +64,12 @@ if (values.file) {
   }
 } else {
   if (values.branch) {
+    if (values.branch.startsWith("-")) {
+      console.error(
+        `Invalid branch name "${values.branch}": cannot start with "-"`,
+      );
+      process.exit(1);
+    }
     argArray.push(values.branch);
   } else if (values.staged) {
     argArray.push("--staged");
