@@ -1,5 +1,7 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 const pathAbs = import.meta.dirname; //current folder path
 
@@ -32,11 +34,11 @@ try {
     },
   }));
 } catch (error) {
-  console.error(error.code, error.message);
+  console.error(error.message);
   process.exit(1);
 }
 
-console.log(values);
+//console.log(values);
 const valuesArray = [values.staged, values.branch, values.file];
 const scoreCount = valuesArray.filter((s) => s).length;
 if (scoreCount > 1) {
@@ -45,3 +47,48 @@ if (scoreCount > 1) {
   );
   process.exit(1);
 }
+let diff;
+const argArray = ["diff"];
+const cmd = "git";
+
+if (values.file) {
+  try {
+    diff = readFileSync(values.file, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.error(`No file found at ${values.file}`);
+    } else {
+      console.error(error.message);
+    }
+    process.exit(1);
+  }
+} else {
+  if (values.branch) {
+    argArray.push(values.branch);
+  } else if (values.staged) {
+    argArray.push("--staged");
+  }
+
+  try {
+    diff = execFileSync(cmd, argArray, {
+      encoding: "utf8",
+      maxBuffer: 10 * 1024 * 1024,
+    });
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.error("Git isn't installed");
+    } else {
+      console.error("Git diff failed");
+    }
+    process.exit(1);
+  }
+}
+
+if (diff.trim().length === 0) {
+  console.log("empty diff");
+  process.exit(0);
+} else {
+  console.log("Diff:", diff.trim().length);
+}
+
+// execFile call
