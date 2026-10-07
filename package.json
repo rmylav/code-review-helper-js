@@ -2,7 +2,7 @@
   "name": "code-review-helper",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "bin": { "review-code": "review.js"},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,4 +13,5 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0"
   }
+  
 }

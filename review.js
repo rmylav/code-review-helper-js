@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+//tells your shell which interpreter runs the file, so it can be executed directly.
+
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { execFileSync } from "node:child_process";
