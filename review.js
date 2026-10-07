@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-sonnet-4-6"; //keep this pinned; update deliberately when you want a newer model
-
+const MAX_TOKENS = 2000;
 const REVIEW_SYSTEM_PROMPT = `You are an experienced, pragmatic senior software engineer doing a code review.
 
 Review the given git diff and provide feedback focused on:
@@ -110,21 +110,45 @@ if (diff.trim().length === 0) {
   process.exit(0);
 }
 const client = new Anthropic();
-console.error("Sending diff to Claude for review...\n");
-const response = await client.messages.create({
-  model: MODEL,
-  max_tokens: 2000,
-  system: REVIEW_SYSTEM_PROMPT,
-  messages: [
-    {
-      role: "user",
-      content: `Please review this diff: \n\n\`\`\`diff\n${diff}\n\`\`\``,
-    },
-  ],
-});
 
-const result = response.content
-  .filter((res) => res.type === "text")
-  .map((res) => res.text)
-  .join("\n");
-console.log(result);
+console.error("Sending diff to Claude for review...\n");
+try {
+  const response = await client.messages.create({
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    system: REVIEW_SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `Please review this diff:\n\n\`\`\`diff\n${diff}\n\`\`\``,
+      },
+    ],
+  });
+
+  const result = response.content
+    .filter((res) => res.type === "text")
+    .map((res) => res.text)
+    .join("\n");
+  console.log(result);
+  if (response.stop_reason === "max_tokens") {
+    console.error(
+      `Warning: review was truncated at max_tokens ${MAX_TOKENS}; raise the limit in review.js to see the full review.`,
+    );
+    process.exit(0);
+  }
+} catch (error) {
+  if (error instanceof Anthropic.NotFoundError) {
+    console.error(`Model "${MODEL}" not found, please check the model name`);
+  } else if (error instanceof Anthropic.AuthenticationError) {
+    console.error(`Invalid API Key Check ${envPath}`);
+  } else if (error instanceof Anthropic.APIConnectionError) {
+    console.error(
+      "Could not reach the Anthropic API. Check your network connection.",
+    );
+  } else if (error instanceof Anthropic.APIError) {
+    console.error(`API error ${error.status}: ${error.message}`);
+  } else {
+    throw error;
+  }
+  process.exit(1);
+}
