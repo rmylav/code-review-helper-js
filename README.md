@@ -15,7 +15,7 @@
 ## Setup
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/rmylav/code-review-helper-js
 cd code-review-helper-js
 npm install
 ```
@@ -54,11 +54,6 @@ Use only one of `--staged`, `--branch`, or `--file` at a time.
 | ---- | ---------------------------------------------------------------------- |
 | `0`  | Review printed, or there were no changes to review                     |
 | `1`  | Something failed: bad arguments, git error, missing file, or API error |
-
-## How it works
-
-<!-- TODO (you): describe the flow in your own words:
-     load key → parse flags → get diff → send to Claude → print review -->
 
 ## Improvements over the original Python version
 

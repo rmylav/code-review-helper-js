@@ -144,7 +144,7 @@ try {
   if (error instanceof Anthropic.NotFoundError) {
     console.error(`Model "${MODEL}" not found, please check the model name`);
   } else if (error instanceof Anthropic.AuthenticationError) {
-    console.error(`Invalid API Key Check ${envPath}`);
+    console.error(`Invalid API Key. Check ${envPath}`);
   } else if (error instanceof Anthropic.APIConnectionError) {
     console.error(
       "Could not reach the Anthropic API. Check your network connection.",
